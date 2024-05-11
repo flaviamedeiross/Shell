@@ -22,57 +22,40 @@ void introducao()
     printf("\n\t\t\t\tPROJETO SHELL - INTERPRETADOR DE COMANDOS");
     printf("\n-----------------------------------------------------------------------------------------------------------------");
     printf("\n Digite um dos comandos existentes abaixo e aperte ENTER para executar:\n");
-    printf("\n    1) exit -> Finaliza o Shell");
-    printf("\n    2) cd <caminho> -> Muda o diretório de trabalho");
-    printf("\n    3) path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executáveis");
-    printf("\n    4) ls [-l] [-a] -> Lista o conteúdo do diretório atual");
+    printf("\n     exit -> Finaliza o Shell");
+    printf("\n     cd <caminho> -> Muda o diretório de trabalho");
+    printf("\n     path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executáveis");
+    printf("\n     ls [-l] [-a] -> Lista o conteúdo do diretório atual");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
 }
 
-// Função para definir caminho(s) para busca de executáveis
-int definir_caminhos(char **args)
+void exibir_prompt()
 {
-    // Reinicialize o número de caminhos
-    num_caminhos = 0;
+    char hostname[1024];
+    gethostname(hostname, 1024);
 
-    for (int j = 1; args[j] != NULL && j < MAX_CAMINHOS; j++)
-    {
-        caminhos_executaveis[j - 1] = args[j];
-        num_caminhos++;
-    }
+    char username[1024];
+    getlogin_r(username, 1024);
 
-    return num_caminhos;
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+
+    printf("\033[0;32m"); 
+    printf("%s@%s", username, hostname);
+    printf("\033[0m");
+    printf(":");
+    printf("\033[0;36m");
+    printf("%s", cwd);
+    printf("\033[0m");
+    printf("$ "); 
 }
 
-// Função para executar programas externos
-void executar_programa_externo(char *caminho_completo_executavel, char **args)
-{
-    pid_t pid = fork();
-
-    if (pid == -1)
-    {
-        perror("Erro ao criar processo filho");
-        exit(EXIT_FAILURE);
-    }
-    else if (pid == 0)
-    {
-        // Processo filho
-        // Tenta executar o comando
-        execv(caminho_completo_executavel, args);
-        
-        // Se execv retornar, ocorreu um erro
-        perror("Erro ao executar programa");
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        // Processo pai
-        int status;
-        waitpid(pid, &status, 0);
-        if (WIFEXITED(status))
-        {
-            printf("Valor retornado pelo programa: %d\n", WEXITSTATUS(status));
-        }
+// Função para adicionar caminho temporário
+void adicionar_caminho(char *caminho) {
+    if (num_caminhos < MAX_CAMINHOS) {
+        caminhos_executaveis[num_caminhos++] = strdup(caminho);
+    } else {
+        fprintf(stderr, "Número máximo de caminhos atingido\n");
     }
 }
 
@@ -143,7 +126,7 @@ void listar_arquivos(int mostrar_ocultos, int detalhado)
             if (!mostrar_ocultos && diretorio->d_name[0] == '.')
                 continue;
             printf("\033[0;32m"); 
-            printf("\t%s  ", diretorio->d_name);
+            printf("%s\t  ", diretorio->d_name);
         }
         printf("\n");
     }
@@ -180,18 +163,14 @@ int verificar_comandos(char *comando, char **args)
                 perror("cd");
             }
         }
-        return 2;
     }
-    else if (strcmp(args[0], "path") == 0)
-    {
-        // Lida com o comando "path"
-        num_caminhos = 0; // Reinicialize o número de caminhos
-        for (int j = 1; args[j] != NULL && j < MAX_CAMINHOS; j++)
-        {
-            caminhos_executaveis[j - 1] = args[j];
-            num_caminhos++;
+    else if (strcmp(args[0], "path") == 0) {
+        // Se o comando for "path", definir caminhos temporários
+        num_caminhos = 0; // Limpar os caminhos anteriores
+        for (int i = 1; args[i] != NULL; i++) {
+            adicionar_caminho(args[i]);
         }
-        return 3;
+        return 0; // Não execute o comando como normalmente
     }
     else if (strcmp(args[0], "ls") == 0)
     {
@@ -209,15 +188,21 @@ int verificar_comandos(char *comando, char **args)
             }
         }
         listar_arquivos(mostrar_ocultos, detalhado);
-        return 4;
     }
-    else
-    {
-        // Se não for um comando interno, assumimos que é um comando externo
-        char caminho_completo_executavel[MAX_COMANDO];
-        sprintf(caminho_completo_executavel, "%s/%s", caminhos_executaveis[0], args[0]); // Supondo que só há um caminho definido
-        executar_programa_externo(caminho_completo_executavel, args);
-        return 5;
+    else{
+        int i = 0;
+        while (caminhos_executaveis[i] != NULL) {
+            char caminho_programa[MAX_COMANDO];
+            snprintf(caminho_programa, sizeof(caminho_programa), "%s/%s", caminhos_executaveis[i], args[0]);
+            if (access(caminho_programa, X_OK) == 0) {
+                // Encontrou o programa, execute-o
+                execvp(caminho_programa, args);
+                // Se execvp retornar, ocorreu um erro
+                perror("Erro ao executar programa");
+                return 1; // Indique que o comando não foi executado
+            }
+            i++;
+        }
     }
 
     return 1;
@@ -232,7 +217,9 @@ int main()
 
     while (1)
     {
-        printf("Digite um comando> ");
+        printf("\n");
+        exibir_prompt();
+        printf(" ");
         fflush(stdout);
 
         ler_comando = fgets(comando, sizeof(comando), stdin);
@@ -242,9 +229,6 @@ int main()
             *novalinha = '\0';
 
         int x = verificar_comandos(ler_comando, args);
-
-        printf("Valor de Comando: %d\n", x);
-        printf("Comando recebido: %s\n", comando);
 
         // Exibir os caminhos de busca de executáveis
         printf("Caminhos de busca de executáveis:\n");
