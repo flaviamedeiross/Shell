@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <pwd.h>
 
 
 #define MAX_COMANDO 1024
@@ -17,80 +19,64 @@ void introducao()
     printf("\n    1) exit -> Finaliza o Shell");
     printf("\n    2) cd <caminho> -> Muda o diretório de trabalho");
     printf("\n    3) path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executáveis");
-    printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
+    printf("\n-----------------------------------------------------------------------------------------------------------------\n");
 }
 
-int verificar_comandos(char *comando, char **args){
+void print_diretorio_atual()
+{
+    char caminho[1024];
+    getcwd(caminho, sizeof(caminho));
+    printf("\n$%s> ", caminho);     
+}
+
+void verificar_comandos(char *comando, char **args){
     
-    int i=0;
+    int i = 0;
     char *token = strtok(comando, " ");
 
-    while (token != NULL) {
+    while (token != NULL)
+    {
         args[i++] = token;
         token = strtok(NULL, " ");
     }
-    args[i] = NULL;     
+    args[i] = NULL;   
 
-    if (args[0] == NULL) {                      // Nenhum comando foi digitado
-        perror("Erro ao ler o comando!");
-        return 0;       
+    if (args[0] == NULL) {                              // Nenhum comando foi digitado
+        perror("Erro ao ler o comando!");       
     }
 
-    if (strcmp(args[0], "exit") == 0) {         //Comando interno para sair do shell
+    if (strcmp(args[0], "exit") == 0) {                 //Comando interno para sair do shell
         exit(0);
     }
-    else if (strcmp(args[0], "cd") == 0) {      //Comando interno para muda o diretório de trabalho
-        if (args[1] == NULL) {
-            fprintf(stderr, "cd: Diretório não especificado\n");
-        } else {
-            if (chdir(args[1]) != 0) {
+
+
+    else if (strcmp(args[0], "cd") == 0) { 
+        // se o comando for "cd" entrar em um diretorio             
+        char *dir = args[1];
+        
+        // Se nenhum diretório é especificado ou ~ (home) é usado
+        if (dir == NULL || strcmp(dir, "~") == 0) 
+        { 
+            struct passwd *pw = getpwuid(getuid());     //retorna um ponteiro contendo informações sobre o usuário atual 
+            
+            if (pw == NULL) {
+                perror("getpwuid");
+                return;
+            }
+            dir = pw->pw_dir;                           //atribui o diretório home do usuário à variável dir
+        }
+
+        if (chdir(dir) != 0) {
+            if (errno == ENOENT) {
+                fprintf(stderr, "cd: Diretório '%s' não existe\n", dir);
+            } else {
                 perror("cd");
             }
         }
-        return 2;
-    }
-
-    /*
-    else if(strcmp(args[0], "path") == 0){
-        if (args[1] == NULL) {
-            fprintf(stderr, "path: caminho não especificado\n");
-        } else {
-            if (chdir(args[1]) != 0) {
-                perror("path");
-            }
-        }
-        return 3;
-    }
-
-    */
+    } 
 
 }
 
-/*
-
-void executar_comandos(char *comando) {
-
-    // 0 equivale a termino de leitura, 1 equivale a termino de escrita
-    //int pipefd[2]; 
-
-    
-    pid_t pid = fork();                                             //Processo filho para executar o comando
-
-    if (pid == 0) {                                                 //Processo filho
-        
-        //Executar o comando
-
-    } else if (pid < 0) { 
-        perror("Erro ao criar processo filho");
-        return -1;
-    } else {                                                        //Processo pai
-        wait(NULL);
-    }                                                               
-                                                                    
-    return 0;                                                       
-}                                                                   
-
-*/
 
 int main() {                                                        
     char comando[MAX_COMANDO], *args[MAX_COMANDO];
@@ -99,7 +85,7 @@ int main() {
     introducao();                                           
 
     while (1) {                                                     //Loop infinito p/ receber comandos
-        printf("Digite um comando> ");                              //Prompt do shell
+        print_diretorio_atual();                                    //Prompt do shell
         fflush(stdout);                                             //Limpa o buffer de saída
 
         ler_comando = fgets(comando, sizeof(comando), stdin);       //Ler o comando do usuario
@@ -107,12 +93,13 @@ int main() {
         char *novalinha = strchr(comando, '\n');                    //Remover o caractere \n
         if (novalinha != NULL) *novalinha = '\0';                   //Se tiver um \n, substituir por \0
 
+        if (ler_comando == NULL || strcmp(comando, "\n") == 0) {    //Erro durante a leitura
+                    perror("Erro ao ler o comando");
+                    continue;                                       //Continua para o prox loop
+                }
 
-        int x = verificar_comandos(ler_comando, args);
-
-        printf("Valor de Comando: %d\n", x);
+        verificar_comandos(ler_comando, args);
         
-        printf("Comando recebido: %s\n", comando);
     }
 
     return 0;
