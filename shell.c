@@ -25,6 +25,7 @@ void introducao()
     printf("\n     exit -> Finaliza o Shell");
     printf("\n     cd <caminho> -> Muda o diretório de trabalho");
     printf("\n     path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executáveis");
+    printf("\n     cat <arquivo> - > Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
     printf("\n     ls [-l] [-a] -> Lista o conteúdo do diretório atual");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
 }
@@ -56,6 +57,36 @@ void adicionar_caminho(char *caminho) {
         caminhos_executaveis[num_caminhos++] = strdup(caminho);
     } else {
         fprintf(stderr, "Número máximo de caminhos atingido\n");
+    }
+}
+
+//funcao cat
+void exibir_conteudo_arquivos(int argc, char **argv){
+    // Verifica se pelo menos um arquivo foi fornecido como argumento
+    if (argc <= 1) {
+        fprintf(stderr, "cat: nenhum arquivo fornecido\n");
+        return;
+    }
+
+    FILE *arquivo;
+    int caracter;
+
+    // Itera sobre os argumentos (arquivos)
+    for (int i = 1; i < argc; i++) {
+        // Abre o arquivo
+        arquivo = fopen(argv[i], "r");
+        if (arquivo == NULL) {
+            perror("cat: Não foi possível abrir o arquivo");
+            continue;
+        }
+
+        // Lê e exibe o conteúdo do arquivo caractere por caractere
+        while ((caracter = fgetc(arquivo)) != EOF) {
+            putchar(caracter);
+        }
+
+        // Fecha o arquivo
+        fclose(arquivo);
     }
 }
 
@@ -146,9 +177,13 @@ int verificar_comandos(char *comando, char **args)
     }
     args[i] = NULL;
 
+    if (args[0] == NULL) {
+        return 1; // Nenhum comando digitado, continue no shell
+    }
+
     if (strcmp(args[0], "exit") == 0)
     {
-        exit(0);
+        return 0;  // Indica que é para sair do shell
     }
     else if (strcmp(args[0], "cd") == 0)
     {
@@ -170,7 +205,11 @@ int verificar_comandos(char *comando, char **args)
         for (int i = 1; args[i] != NULL; i++) {
             adicionar_caminho(args[i]);
         }
-        return 0; // Não execute o comando como normalmente
+    }
+    else if (strcmp(args[0], "cat") == 0)
+    {
+        int argc;
+        exibir_conteudo_arquivos(i, args);
     }
     else if (strcmp(args[0], "ls") == 0)
     {
@@ -189,23 +228,35 @@ int verificar_comandos(char *comando, char **args)
         }
         listar_arquivos(mostrar_ocultos, detalhado);
     }
-    else{
-        int i = 0;
-        while (caminhos_executaveis[i] != NULL) {
-            char caminho_programa[MAX_COMANDO];
-            snprintf(caminho_programa, sizeof(caminho_programa), "%s/%s", caminhos_executaveis[i], args[0]);
-            if (access(caminho_programa, X_OK) == 0) {
-                // Encontrou o programa, execute-o
-                execvp(caminho_programa, args);
-                // Se execvp retornar, ocorreu um erro
-                perror("Erro ao executar programa");
-                return 1; // Indique que o comando não foi executado
+    else
+    {
+        pid_t pid = fork();
+        if (pid == 0) // Processo filho
+        {
+            for (int i = 0; i < num_caminhos; i++) {
+                char caminho_programa[MAX_COMANDO];
+                snprintf(caminho_programa, sizeof(caminho_programa), "%s/%s", caminhos_executaveis[i], args[0]);
+                if (access(caminho_programa, X_OK) == 0) {
+                    execvp(caminho_programa, args);
+                    perror("Erro ao executar programa");
+                    exit(1); // Indique que houve um erro
+                }
             }
-            i++;
+            perror("Comando não encontrado");
+            exit(1);
+        }
+        else if (pid > 0) // Processo pai
+        {
+            int status;
+            waitpid(pid, &status, 0); // Espera o processo filho terminar
+        }
+        else
+        {
+            perror("Erro ao criar processo");
         }
     }
 
-    return 1;
+    return 1;  // Indica para continuar no shell
 }
 
 int main()
@@ -224,18 +275,24 @@ int main()
 
         ler_comando = fgets(comando, sizeof(comando), stdin);
 
+        if (ler_comando == NULL) {
+            printf("\n");
+            continue;
+        }
+
         char *novalinha = strchr(comando, '\n');
         if (novalinha != NULL)
             *novalinha = '\0';
 
-        int x = verificar_comandos(ler_comando, args);
-
-        // Exibir os caminhos de busca de executáveis
-        printf("Caminhos de busca de executáveis:\n");
-        for (int i = 0; i < num_caminhos; i++)
-        {
-            printf("%s\n", caminhos_executaveis[i]);
+        if (strlen(comando) == 0) {
+            continue; // Comando vazio, continue no loop
         }
+
+        int continuar = verificar_comandos(comando, args);
+        if (!continuar) {
+            break; // Se o comando for "exit", sai do loop e termina o shell
+        }
+
     }
 
     return 0;
