@@ -23,10 +23,10 @@ void introducao()
     printf("\n-----------------------------------------------------------------------------------------------------------------");
     printf("\n Digite um dos comandos existentes abaixo e aperte ENTER para executar:\n");
     printf("\n     exit -> Finaliza o Shell");
-    printf("\n     cd <caminho> -> Muda o diretório de trabalho");
-    printf("\n     path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executáveis");
-    printf("\n     cat <arquivo> - > Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
-    printf("\n     ls [-l] [-a] -> Lista o conteúdo do diretório atual");
+    printf("\n     cd <caminho> -> Muda o diretorio de trabalho");
+    printf("\n     path <caminho> [<caminho> <caminho> ...] -> Define caminho(s) para busca de executaveis");
+    printf("\n     cat <arquivo> - > Le o conteúdo do arquivo no argumento e o escreve na saida padrao.");
+    printf("\n     ls [-l] [-a] -> Lista o conteudo do diretorio atual");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
 }
 
@@ -51,18 +51,19 @@ void exibir_prompt()
     printf("$ "); 
 }
 
-// Função para adicionar caminho temporário
+// Funcao para adicionar caminho temporario
 void adicionar_caminho(char *caminho) {
     if (num_caminhos < MAX_CAMINHOS) {
         caminhos_executaveis[num_caminhos++] = strdup(caminho);
     } else {
-        fprintf(stderr, "Número máximo de caminhos atingido\n");
+        fprintf(stderr, "Numero maximo de caminhos atingido\n");
     }
 }
 
-//funcao cat
+// Funcao cat
 void exibir_conteudo_arquivos(int argc, char **argv){
-    // Verifica se pelo menos um arquivo foi fornecido como argumento
+    
+    // Ve se pelo menos um arquivo foi fornecido como argumento
     if (argc <= 1) {
         fprintf(stderr, "cat: nenhum arquivo fornecido\n");
         return;
@@ -71,16 +72,17 @@ void exibir_conteudo_arquivos(int argc, char **argv){
     FILE *arquivo;
     int caracter;
 
-    // Itera sobre os argumentos (arquivos)
+    // Itera sobre os argumentos
     for (int i = 1; i < argc; i++) {
+        
         // Abre o arquivo
         arquivo = fopen(argv[i], "r");
         if (arquivo == NULL) {
-            perror("cat: Não foi possível abrir o arquivo");
+            perror("cat: Nao foi possivel abrir o arquivo");
             continue;
         }
 
-        // Lê e exibe o conteúdo do arquivo caractere por caractere
+        // Le e imprime caractere por caractere do arquivo
         while ((caracter = fgetc(arquivo)) != EOF) {
             putchar(caracter);
         }
@@ -90,14 +92,14 @@ void exibir_conteudo_arquivos(int argc, char **argv){
     }
 }
 
-// Função comando ls
+// Funcao comando ls
 void listar_arquivos(int mostrar_ocultos, int detalhado)
 {
     struct dirent *diretorio;
     DIR *dir = opendir(".");
     if (dir == NULL)
     {
-        perror("Erro ao abrir diretório");
+        perror("Erro ao abrir diretorio");
         return;
     }
 
@@ -113,7 +115,7 @@ void listar_arquivos(int mostrar_ocultos, int detalhado)
 
             if (stat(diretorio->d_name, &statbuf) == -1)
             {
-                perror("Erro ao obter informações do arquivo");
+                perror("Erro ao obter informacoes do arquivo");
                 continue;
             }
             total += statbuf.st_blocks;
@@ -144,7 +146,7 @@ void listar_arquivos(int mostrar_ocultos, int detalhado)
             printf("\t%s ", data);
 
             // Definindo a cor verde para os nomes dos arquivos/pastas
-            printf("\033[0;32m"); // código de formatação ANSI para cor verde
+            printf("\033[0;32m"); // codigo de formatação ANSI para cor verde
             printf("\t%s\n", diretorio->d_name);
         }
         printf("\033[0m");
@@ -183,13 +185,13 @@ int verificar_comandos(char *comando, char **args)
 
     if (strcmp(args[0], "exit") == 0)
     {
-        return 0;  // Indica que é para sair do shell
+        return 0;  // Indica que e para sair do shell
     }
     else if (strcmp(args[0], "cd") == 0)
     {
         if (args[1] == NULL)
         {
-            fprintf(stderr, "cd: Diretório não especificado\n");
+            fprintf(stderr, "cd: Diretorio não especificado\n");
         }
         else
         {
@@ -200,7 +202,7 @@ int verificar_comandos(char *comando, char **args)
         }
     }
     else if (strcmp(args[0], "path") == 0) {
-        // Se o comando for "path", definir caminhos temporários
+        // Se o comando for "path", definir caminhos temporarios
         num_caminhos = 0; // Limpar os caminhos anteriores
         for (int i = 1; args[i] != NULL; i++) {
             adicionar_caminho(args[i]);
@@ -242,7 +244,7 @@ int verificar_comandos(char *comando, char **args)
                     exit(1); // Indique que houve um erro
                 }
             }
-            perror("Comando não encontrado");
+            perror("Comando nao encontrado");
             exit(1);
         }
         else if (pid > 0) // Processo pai
