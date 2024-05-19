@@ -241,11 +241,11 @@ int verificar_comandos(char *comando, char **args)
                 if (access(caminho_programa, X_OK) == 0) {
                     execvp(caminho_programa, args);
                     perror("Erro ao executar programa");
-                    exit(1); // Indique que houve um erro
+                    return 1; // Indique que houve um erro
                 }
             }
             perror("Comando nao encontrado");
-            exit(1);
+            return 1;
         }
         else if (pid > 0) // Processo pai
         {
