@@ -10,6 +10,8 @@
 #include <grp.h>
 #include <time.h>
 #include <ctype.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #define MAX_COMANDO 1024
 #define MAX_CAMINHOS 10
