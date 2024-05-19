@@ -168,7 +168,11 @@ int verificar_comandos(char **args) {
             adicionar_caminho(args[i]);
         }
     } else if (strcmp(args[0], "cat") == 0) {
-        exibir_conteudo_arquivos(2, args);
+        int arquivos = 0;
+        for (int i = 0; args[i] != NULL; i++) {
+            arquivos++;
+        }
+        exibir_conteudo_arquivos(arquivos, args);
     } else if (strcmp(args[0], "ls") == 0) {
         int mostrar_ocultos = 0;
         int detalhado = 0;
@@ -193,8 +197,8 @@ int verificar_comandos(char **args) {
                 exit(1); // Indique que houve um erro
             }
         }
-        perror("Comando não encontrado");
-        exit(1);
+        fprintf(stderr, "%s: Comando não encontrado\n", args[0]);
+        return 1;
     }
     return 1; // Continue no shell
 }
