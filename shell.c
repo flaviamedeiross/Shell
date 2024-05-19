@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <pwd.h>
 
 #define MAX_COMANDO 1024
 #define MAX_CAMINHOS 10
@@ -28,6 +29,7 @@ void introducao() {
     printf("\n     cd <caminho> -> Muda o diretório de trabalho");
     printf("\n     path <caminho>/<caminho>/<caminho>  -> Define caminho(s) para busca de executáveis");
     printf("\n     cat <arquivo> -> Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
+    printf("\n     cat arquivo.txt > arquivo-saída -> Faz o redirecionamento de saída do comando cat");
     printf("\n     ls [-l] [-a] -> Lista o conteúdo do diretório atual");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
 }
@@ -149,30 +151,76 @@ void listar_arquivos(int mostrar_ocultos, int detalhado) {
     closedir(dir);
 }
 
-int verificar_comandos(char **args) {
-    int i = 0;
-    char *arquivo_saida = NULL;
-
-     if (args[0] == NULL) {
+int verificar_comandos(char **args, char *arquivo_saida) {
+    if (args[0] == NULL) {
         return 1; // Nenhum comando digitado, continue no shell
     }
+
     if (strcmp(args[0], "exit") == 0) {
         return 0;  // Indica que é para sair do shell
-    } else if (strcmp(args[0], "cd") == 0) {
-        if (args[1] == NULL) {
-            fprintf(stderr, "cd: Diretório não especificado\n");
-        } else {
-            if (chdir(args[1]) != 0) {
+
+    } else if (strcmp(args[0], "cd") == 0) { 
+        // se o comando for "cd" entrar em um diretorio             
+        char *dir = args[1];
+        
+        // Se nenhum diretório é especificado ou ~ (home) é usado
+        if (dir == NULL || strcmp(dir, "~") == 0) 
+        {
+            //retorna um ponteiro contendo informações sobre o usuário atual 
+            struct passwd *pw = getpwuid(getuid());      
+            
+            if (pw == NULL) {
+                perror("getpwuid");
+                return 1;
+            }
+            //atribui o diretório home do usuário à variável dir
+            dir = pw->pw_dir;                           
+        }
+
+        if (chdir(dir) != 0) {
+            if (errno == ENOENT) {
+                fprintf(stderr, "cd: Diretório '%s' não existe\n", dir);
+            } else {
                 perror("cd");
             }
         }
+
     } else if (strcmp(args[0], "path") == 0) {
         num_caminhos = 0; // Limpar os caminhos anteriores
         for (int i = 1; args[i] != NULL; i++) {
             adicionar_caminho(args[i]);
         }
-    }  else if (strcmp(args[0], "cat") == 0) {
-        exibir_conteudo_arquivos(2, args);
+
+    } else if (strcmp(args[0], "cat") == 0) {
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("Erro ao criar processo filho");
+            return 1;
+        }
+        if (pid == 0) { // Processo filho
+            if (arquivo_saida != NULL) {
+                int fd = open(arquivo_saida, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                if (fd == -1) {
+                    perror("Erro ao abrir arquivo de saída");
+                    exit(EXIT_FAILURE);
+                }
+                if (dup2(fd, STDOUT_FILENO) == -1) {
+                    perror("Erro ao redirecionar saída para arquivo");
+                    exit(EXIT_FAILURE);
+                }
+                close(fd);
+            }
+            int arquivos = 0;
+            for (int i = 0; args[i] != NULL; i++) {
+                arquivos++;
+            }
+            exibir_conteudo_arquivos(arquivos, args);
+            
+            exit(EXIT_SUCCESS);
+        } else { // Processo pai
+            waitpid(pid, NULL, 0);
+        }
+
     } else if (strcmp(args[0], "ls") == 0) {
         int mostrar_ocultos = 0;
         int detalhado = 0;
@@ -187,6 +235,7 @@ int verificar_comandos(char **args) {
             }
         }
         listar_arquivos(mostrar_ocultos, detalhado);
+
     } else {
         pid_t pid = fork();
         if (pid == 0) // Processo filho
@@ -248,7 +297,14 @@ int processar_comandos(char *comando) {
         char *arg_token = strtok(cmd_args[i], " ");
         char *args[100]; // Assumindo que no máximo 100 argumentos são permitidos
         int j = 0;
+        char *arquivo_saida = NULL;
+
         while (arg_token != NULL) {
+            if (strcmp(arg_token, ">") == 0) {
+                arg_token = strtok(NULL, " ");
+                arquivo_saida = arg_token;
+                break;
+            }
             args[j++] = arg_token;
             arg_token = strtok(NULL, " ");
         }
@@ -256,7 +312,7 @@ int processar_comandos(char *comando) {
 
         if (strcmp(args[0], "cd") == 0) {
             // Comando cd deve ser tratado no processo pai
-            if (verificar_comandos(args) == 0) {
+            if (verificar_comandos(args, arquivo_saida) == 0) {
                 return 0; // Sair do shell
             }
         } else {
@@ -312,12 +368,19 @@ int main() {
         } else {
             char *arg_token = strtok(comando, " ");
             int j = 0;
+            char *arquivo_saida = NULL;
+
             while (arg_token != NULL) {
+                if (strcmp(arg_token, ">") == 0) {
+                    arg_token = strtok(NULL, " ");
+                    arquivo_saida = arg_token;
+                    break;
+                }
                 args[j++] = arg_token;
                 arg_token = strtok(NULL, " ");
             }
             args[j] = NULL;
-            int continuar = verificar_comandos(args);
+            int continuar = verificar_comandos(args, arquivo_saida);
             if (continuar == 0) {
                 break; // Sair do shell
             }
