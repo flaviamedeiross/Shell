@@ -224,18 +224,27 @@ int verificar_comandos(char **args, char *arquivo_saida) {
     } else if (strcmp(args[0], "ls") == 0) {
         int mostrar_ocultos = 0;
         int detalhado = 0;
-        for (int j = 1; args[j] != NULL; j++) {
-            if (strcmp(args[j], "-a") == 0)
-                mostrar_ocultos = 1;
-            else if (strcmp(args[j], "-l") == 0)
-                detalhado = 1;
-            else if (strcmp(args[j], "-la") == 0 || strcmp(args[j], "-al") == 0) {
-                mostrar_ocultos = 1;
-                detalhado = 1;
-            }
+        int valido = 0;
+        // Verifica se os argumentos correspondem às opções válidas
+        if (args[1] == NULL) {
+            valido = 1;
+        } else if (strcmp(args[1], "-a") == 0) {
+            mostrar_ocultos = 1;
+            valido = 1;
+        } else if (strcmp(args[1], "-l") == 0) {
+            detalhado = 1;
+            valido = 1;
+        } else if (strcmp(args[1], "-la") == 0 || strcmp(args[1], "-al") == 0) {
+            mostrar_ocultos = 1;
+            detalhado = 1;
+            valido = 1;
         }
+         if (valido) {
         listar_arquivos(mostrar_ocultos, detalhado);
-
+        } else {
+            fprintf(stderr, "Comando ls: argumentos inválidos\n");
+            return 1;
+        }
     } else {
         pid_t pid = fork();
         if (pid == 0) // Processo filho
@@ -315,6 +324,9 @@ int processar_comandos(char *comando) {
             if (verificar_comandos(args, arquivo_saida) == 0) {
                 return 0; // Sair do shell
             }
+        }else if(strcmp(args[0], "cat") == 0){
+            verificar_comandos(args, arquivo_saida);
+        
         } else {
             pid_t pid = fork();
             if (pid == 0) {
