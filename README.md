@@ -33,7 +33,11 @@ ls
 ```sh
 cat arquivo.txt > arquivo-saída
 ```
-### Vários comandos separados por um & são executados de forma concorrente, em processos separados.
+- Vários comandos separados por um & são executados de forma concorrente, em processos separados.
 ```sh
 cmd1 & cmd2 arg1 arg2 & cmd3 arg3
 ```
+### Pessoas Desenvolvedoras: 
+- Daniela Akemi Hayashi
+- Flávia Cristina Medeiros
+- Giovana Salazar Alarcon
