@@ -26,12 +26,12 @@ void introducao() {
     printf("\n-----------------------------------------------------------------------------------------------------------------");
     printf("\n Digite um dos comandos existentes abaixo e aperte ENTER para executar:\n");
     printf("\n     exit                                -> Finaliza o Shell");
-    printf("\n     cd <caminho>                        -> Muda o diretório de trabalho");
-    printf("\n     path <caminho>/<caminho>/<caminho>  -> Define caminho(s) para busca de executáveis");
+    printf("\n     cd <caminho>                        -> Muda o diretorio de trabalho");
+    printf("\n     path <caminho>/<caminho>/<caminho>  -> Define caminho(s) para busca de executaveis");
     printf("\n     <arquivo>                           -> Executa o arquivo executavel do caminho definido no path");
-    printf("\n     cat <arquivo>                       -> Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
-    printf("\n     cat arquivo.txt > arquivo-saída     -> Faz o redirecionamento de saída do comando cat");
-    printf("\n     ls [-l] [-a]                        -> Lista o conteúdo do diretório atual");
+    printf("\n     cat <arquivo>                       -> Le o conteudo do arquivo no argumento e o escreve na saida padrao.");
+    printf("\n     cat arquivo.txt > arquivo-saída     -> Faz o redirecionamento de saida do comando cat");
+    printf("\n     ls [-l] [-a]                        -> Lista o conteudo do diretorio atual");
     printf("\n     cmd1 & cmd2 arg1 arg2 & cmd3 arg3   -> Comandos separados por um '&', os executa de forma concorrente,");
     printf("\n                                            em processos separados");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
@@ -61,11 +61,13 @@ void adicionar_caminho(char *caminho) {
     if (num_caminhos < MAX_CAMINHOS) {
         caminhos_executaveis[num_caminhos++] = strdup(caminho);
     } else {
-        fprintf(stderr, "Número máximo de caminhos atingido\n");
+        fprintf(stderr, "Numero maximo de caminhos atingido\n");
     }
 }
 
+// Funcao cat
 void exibir_conteudo_arquivos(int argc, char **argv) {
+    // Ve se pelo menos um arquivo foi fornecido
     if (argc <= 1) {
         fprintf(stderr, "cat: nenhum arquivo fornecido\n");
         return;
@@ -74,17 +76,22 @@ void exibir_conteudo_arquivos(int argc, char **argv) {
     FILE *arquivo;
     int caracter;
 
+    // Itera sobre os argumentos
     for (int i = 1; i < argc; i++) {
+
+        // Abre o arquivo
         arquivo = fopen(argv[i], "r");
         if (arquivo == NULL) {
-            perror("cat: Não foi possível abrir o arquivo");
+            perror("cat: Nao foi possivel abrir o arquivo");
             continue;
         }
 
+        // Le e imprime na tela caracter por caracter do arquivo
         while ((caracter = fgetc(arquivo)) != EOF) {
             putchar(caracter);
         }
 
+        // Fecha o arquivo
         fclose(arquivo);
     }
 }
@@ -93,7 +100,7 @@ void listar_arquivos(int mostrar_ocultos, int detalhado) {
     struct dirent *diretorio;
     DIR *dir = opendir(".");
     if (dir == NULL) {
-        perror("Erro ao abrir diretório");
+        perror("Erro ao abrir diretorio");
         return;
     }
 
@@ -106,7 +113,7 @@ void listar_arquivos(int mostrar_ocultos, int detalhado) {
                 continue;
 
             if (stat(diretorio->d_name, &statbuf) == -1) {
-                perror("Erro ao obter informações do arquivo");
+                perror("Erro ao obter informacoes do arquivo");
                 continue;
             }
             total += statbuf.st_blocks;
@@ -160,29 +167,29 @@ int verificar_comandos(char **args, char *arquivo_saida) {
     }
 
     if (strcmp(args[0], "exit") == 0) {
-        return 0;  // Indica que é para sair do shell
+        return 0;  // Indica que e para sair do shell
 
     } else if (strcmp(args[0], "cd") == 0) { 
         // se o comando for "cd" entrar em um diretorio             
         char *dir = args[1];
         
-        // Se nenhum diretório é especificado ou ~ (home) é usado
+        // Se nenhum diretorio e especificado ou ~ (home) e usado
         if (dir == NULL || strcmp(dir, "~") == 0) 
         {
-            //retorna um ponteiro contendo informações sobre o usuário atual 
+            //retorna um ponteiro contendo informacoes sobre o usuario atual 
             struct passwd *pw = getpwuid(getuid());      
             
             if (pw == NULL) {
                 perror("getpwuid");
                 return 1;
             }
-            //atribui o diretório home do usuário à variável dir
+            //atribui o diretorio home do usuario a variavel dir
             dir = pw->pw_dir;                           
         }
 
         if (chdir(dir) != 0) {
             if (errno == ENOENT) {
-                fprintf(stderr, "cd: Diretório '%s' não existe\n", dir);
+                fprintf(stderr, "cd: Diretorio '%s' nao existe\n", dir);
             } else {
                 perror("cd");
             }
@@ -204,11 +211,11 @@ int verificar_comandos(char **args, char *arquivo_saida) {
             if (arquivo_saida != NULL) {
                 int fd = open(arquivo_saida, O_WRONLY | O_CREAT | O_TRUNC, 0644);
                 if (fd == -1) {
-                    perror("Erro ao abrir arquivo de saída");
+                    perror("Erro ao abrir arquivo de saida");
                     exit(EXIT_FAILURE);
                 }
                 if (dup2(fd, STDOUT_FILENO) == -1) {
-                    perror("Erro ao redirecionar saída para arquivo");
+                    perror("Erro ao redirecionar saida para arquivo");
                     exit(EXIT_FAILURE);
                 }
                 close(fd);
@@ -228,7 +235,7 @@ int verificar_comandos(char **args, char *arquivo_saida) {
         int mostrar_ocultos = 0;
         int detalhado = 0;
         int valido = 0;
-        // Verifica se os argumentos correspondem às opções válidas
+        // Verifica se os argumentos correspondem as opcoes validas
         if (args[1] == NULL) {
             valido = 1;
         } else if (strcmp(args[1], "-a") == 0) {
@@ -245,7 +252,7 @@ int verificar_comandos(char **args, char *arquivo_saida) {
          if (valido) {
         listar_arquivos(mostrar_ocultos, detalhado);
         } else {
-            fprintf(stderr, "Comando ls: argumentos inválidos\n");
+            fprintf(stderr, "Comando ls: argumentos invalidos\n");
             return 1;
         }
     } else {
@@ -261,7 +268,7 @@ int verificar_comandos(char **args, char *arquivo_saida) {
                     return 1; // Indique que houve um erro
                 }
             }
-            fprintf(stderr, "Comando não encontrado: %s\n", args[0]);
+            fprintf(stderr, "Comando nao encontrado: %s\n", args[0]);
             return 1;
         }
         else if (pid > 0) // Processo pai
@@ -279,7 +286,7 @@ int verificar_comandos(char **args, char *arquivo_saida) {
 
 int processar_comandos(char *comando) {
     char *token;
-    char *cmd_args[100]; // Assumindo que no máximo 100 comandos/argumentos são permitidos
+    char *cmd_args[100]; // Assumindo que no maximo 100 comandos/argumentos sao permitidos
     int num_cmds = 0;
 
     // Separa os comandos e argumentos
@@ -292,22 +299,22 @@ int processar_comandos(char *comando) {
     // Processa os comandos e argumentos
     for (int i = 0; i < num_cmds; i++) {
         if (cmd_args[i] == NULL) {
-            continue; // Pode haver espaços em branco entre &
+            continue; // Pode haver espacos em branco entre &
         }
 
-        // Remove espaços em branco no começo do comando/argumento
+        // Remove espacos em branco no comeco do comando/argumento
         while (isspace((unsigned char) cmd_args[i][0])) {
             memmove(cmd_args[i], cmd_args[i] + 1, strlen(cmd_args[i]));
         }
 
-        // Remove espaços em branco no final do comando/argumento
+        // Remove espacos em branco no final do comando/argumento
         while (isspace((unsigned char) cmd_args[i][strlen(cmd_args[i]) - 1])) {
             cmd_args[i][strlen(cmd_args[i]) - 1] = '\0';
         }
 
         // Verifica comandos e executa em background
         char *arg_token = strtok(cmd_args[i], " ");
-        char *args[100]; // Assumindo que no máximo 100 argumentos são permitidos
+        char *args[100]; // Assumindo que no maximo 100 argumentos sao permitidos
         int j = 0;
         char *arquivo_saida = NULL;
 
@@ -377,7 +384,7 @@ int main() {
             continue; // Comando vazio, continue no loop
         }
 
-        // Verifica a presença de & e processa os comandos
+        // Verifica a presenca de & e processa os comandos
         if (strchr(comando, '&') != NULL) {
             processar_comandos(comando);
         } else {
