@@ -4,6 +4,7 @@ Este projeto implementa um shell simples em C, capaz de executar comandos básic
 
 ## Comandos 
 ### exit
+Finaliza o Shell.
 ```sh
 exit
 ```
@@ -16,7 +17,7 @@ Considera o diretorio atual, portanto deve-se definir o caminho no path a partir
 ```sh
 path <diretorio>/<diretorio2>
 ```
-### Execução de programa externo
+### 
 O shell deverá procurar, em todos os caminhos definidos com o built-in path, por um executável com o nome inserido no comando
 ```sh
 <arquivo>
