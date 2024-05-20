@@ -27,7 +27,9 @@ O shell deverá procurar, em todos os caminhos definidos com o built-in path, po
 ```sh
 cat <arquivo>
 ```
-- O binário ls lista o conteúdo do diretório atual. O ls suporta os parâmetros -l, -a, -la e -al conforme o funcionamento do ls original.
+- O binário ls lista o conteúdo do diretório atual.
+
+O ls suporta os parâmetros -l, -a, -la e -al conforme o funcionamento do ls original.
 ```sh
 ls 
 ```
