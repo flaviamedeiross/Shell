@@ -31,7 +31,7 @@ void introducao() {
     printf("\n     cat <arquivo> -> Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
     printf("\n     cat arquivo.txt > arquivo-saída -> Faz o redirecionamento de saída do comando cat");
     printf("\n     ls [-l] [-a] -> Lista o conteúdo do diretório atual");
-    printf("\n     arquivo -> Executa o arquivo executavel do caminho definido no path");
+    printf("\n     <arquivo> -> Executa o arquivo executavel do caminho definido no path");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
 }
 
