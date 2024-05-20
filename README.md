@@ -8,7 +8,6 @@ Este projeto implementa um shell simples em C, capaz de executar comandos básic
 exit
 ```
 ### Muda o diretório de trabalho.
-cd <diretorio>
 ```sh
 cd <diretorio>/<diretorio2>
 ```
