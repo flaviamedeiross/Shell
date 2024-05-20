@@ -31,15 +31,6 @@ O binário ls lista o conteúdo do diretório atual. O ls suporta os parâmetros
 ```sh
 ls 
 ```
-```sh
-ls -l
-```
-```sh
-ls -a
-```
-```sh
-ls -la
-```
 ### cat arquivo.txt > arquivo-saída
 A saída dos comandos poderá ser redirecionada para um arquivo.
 ```sh
