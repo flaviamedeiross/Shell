@@ -1,12 +1,12 @@
 # Shell
 
-## Descrição do Projeto
+### Descrição do Projeto
 - Este projeto implementa um shell simples em C, capaz de executar comandos básicos do sistema operacional. O shell suporta comandos internos como exit, cd, path, cat, e ls, além de permitir a execução de programas externos e comandos em paralelo.
 
-## Status do Projeto
+### Status do Projeto
 - Concluido
 
-## Funcionalidades
+### Funcionalidades
 - Finaliza o Shell.
 ```sh
 exit
@@ -46,7 +46,7 @@ cat arquivo.txt > arquivo-saída
 cmd1 & cmd2 arg1 arg2 & cmd3 arg3
 ```
 
-## Compilação e Execução
+### Compilação e Execução
 Para compilar o código, use o comando:
 ```sh
 gcc -g -o shell shell.c
@@ -56,7 +56,7 @@ Para executar o shell, use o comando:
 ./shell
 ```
 
-## Tecnologias Utilizadas
+### Tecnologias Utilizadas
 ![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white) ![VSCode](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white) ![virtualbox](https://img.shields.io/badge/VirtualBox-183A61?logo=virtualbox&logoColor=white&style=for-the-badge)
 
 ### Pessoas Desenvolvedoras: 
