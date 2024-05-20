@@ -12,11 +12,13 @@ exit
 cd <diretorio>/<diretorio2>
 ```
 - Define caminho(s) para busca de executáveis.
+  
 Considera o diretorio atual, portanto deve-se definir o caminho no path a partir do diretorio atual
 ```sh
 path <diretorio>/<diretorio2>
 ```
-- Execução de programas externo. 
+- Execução de programas externo.
+  
 O shell deverá procurar, em todos os caminhos definidos com o built-in path, por um executável com o nome inserido no comando
 ```sh
 <arquivo>
