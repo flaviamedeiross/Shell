@@ -3,12 +3,13 @@
 Este projeto implementa um shell simples em C, capaz de executar comandos básicos do sistema operacional. O shell suporta comandos internos como exit, cd, path, cat, e ls, além de permitir a execução de programas externos e comandos paralelos.
 
 ## Comandos 
-### exit
-Finaliza o Shell.
+### Finaliza o Shell.
+exit
 ```sh
 exit
 ```
-### cd <diretorio>
+### Muda o diretório de trabalho.
+cd <diretorio>
 ```sh
 cd <diretorio>/<diretorio2>
 ```
