@@ -6,6 +6,38 @@
 ### Status do Projeto
 - Concluido
 
+### Execução do Programa
+#### Para axecução do Shell Iterativo siga os comandos abaixo:
+```sh
+gcc -g -o cat cat.c
+```
+```sh
+gcc -g -o ls ls.c
+```
+```sh
+gcc -g -o shell shell.c
+```
+```sh
+./shell
+```
+- Primeiro comando necessário dentro do Shell
+```sh
+path /home/<seu_usuario>/<caminho_da_pasta>
+```
+
+#### Para a Utilização do Shell Batch siga os comando abaixo:
+- Repita os comando anteriores: `gcc -g -o cat cat.c` , `gcc -g -o ls ls.c` e `gcc -g -o shell shell.c` 
+```sh
+./shell comandos.txt
+```
+> Caso de erro nos comandos do arquivo Comandos.txt execute os comandos abaixo:
+```sh
+sudo apt-get install dos2unix
+```
+```sh
+dos2unix comandos.txt
+```
+
 ### Funcionalidades
 - Finaliza o Shell.
 ```sh
