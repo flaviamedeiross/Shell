@@ -37,7 +37,7 @@ void introducao(int argc) {
     printf("\n     <arquivo>                           -> Executa o arquivo executavel do caminho definido no path");
     printf("\n     cat <arquivo>                       -> Lê o conteúdo do arquivo no argumento e o escreve na saída padrão.");
     printf("\n     cat arquivo.txt > arquivo-saída     -> Faz o redirecionamento de saída do comando cat");
-    printf("\n     ls [-l] [-a]                        -> Lista o conteúdo do diretório atual");
+    printf("\n     ls [-l] [-a] [-la] [-al]            -> Lista o conteúdo do diretório atual");
     printf("\n     cmd1 arg1 & cmd2 arg2 & cmd3 arg3   -> Comandos separados por um '&', os executa de forma concorrente,");
     printf("\n                                            em processos separados");
     printf("\n-----------------------------------------------------------------------------------------------------------------\n\n");
