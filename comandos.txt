@@ -1,4 +1,4 @@
-path /
+path /seu_caminho_da_maquina_virtual
 cd ..
 ls
 cat arquivo.txt
