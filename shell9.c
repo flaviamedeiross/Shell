@@ -229,14 +229,8 @@ int executar_arquivo(const char *nome_arquivo) {
                 char *arg_token = strtok(linha, " ");
                 char *args[100];
                 int j = 0;
-                char *arquivo_saida = NULL;
 
                 while (arg_token != NULL) {
-                    if (strcmp(arg_token, ">") == 0) {
-                        arg_token = strtok(NULL, " ");
-                        arquivo_saida = arg_token;
-                        break;
-                    }
                     args[j++] = arg_token;
                     arg_token = strtok(NULL, " ");
                 }
