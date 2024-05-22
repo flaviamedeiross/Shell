@@ -6,3 +6,4 @@ cat <arquivo> & ls -a
 cd /
 ls - la
 exit
+
