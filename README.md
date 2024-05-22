@@ -7,7 +7,8 @@
 - Concluido
 
 ### Execução do Programa
-#### Para axecução do Shell Iterativo siga os comandos abaixo:
+
+### Para axecução do Shell Iterativo siga os comandos abaixo:
 ```sh
 gcc -g -o cat cat.c
 ```
@@ -25,7 +26,7 @@ gcc -g -o shell shell.c
 path /home/<seu_usuario>/<caminho_da_pasta>
 ```
 
-#### Para a Utilização do Shell Batch siga os comando abaixo:
+### Para a Utilização do Shell Batch siga os comando abaixo:
 - Repita os comando anteriores: `gcc -g -o cat cat.c` , `gcc -g -o ls ls.c` e `gcc -g -o shell shell.c` 
 ```sh
 ./shell comandos.txt
