@@ -8,7 +8,7 @@
 
 ### Execução e Compilação do Programa
 
-### Para axecução do Shell Iterativo siga os comandos abaixo:
+### Para a utilização do Shell Iterativo siga os comandos abaixo:
 ```sh
 gcc -g -o cat cat.c
 ```
