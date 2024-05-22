@@ -6,7 +6,7 @@
 ### Status do Projeto
 - Concluido
 
-### Execução e Compilação do Programa:
+## Execução e Compilação do Programa:
 
 ### Para a Utilização do Shell Iterativo siga os comandos abaixo:
 ```sh
@@ -43,7 +43,7 @@ sudo apt-get install dos2unix
 dos2unix comandos.txt
 ```
 
-### Funcionalidades
+## Funcionalidades
 - Finaliza o Shell.
 ```sh
 exit
