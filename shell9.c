@@ -253,13 +253,13 @@ int main(int argc, char *argv[]) {
     introducao();
 
     while (1) {
-
+       
         if(argc > 1){
         executar_arquivo(argv[1]);
         return 0;
         
     } else {
-
+        
         printf("\n");
         exibir_prompt();
         printf(" ");
