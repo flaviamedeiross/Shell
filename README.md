@@ -17,7 +17,7 @@ cd <diretorio>/<diretorio2>
 ```
 - Define caminho(s) para busca de executáveis.
   
-Considera o diretorio atual, portanto deve-se definir o caminho no path a partir do diretorio atual
+O caminho todo deverá ser colocado para a execução desejada.
 ```sh
 path <diretorio>/<diretorio2>
 ```
@@ -55,6 +55,16 @@ Para executar o shell, use o comando:
 ```sh
 ./shell
 ```
+
+### Receber comandos vindos de um arquivo externo
+Criar arquivo txt com os comandos desejados. Exemplo na main.
+```sh
+gcc -g -o shell shell.c
+```
+```sh
+./shell < comandos.txt
+```
+
 
 ### Tecnologias Utilizadas
 ![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white) ![VSCode](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white) ![virtualbox](https://img.shields.io/badge/VirtualBox-183A61?logo=virtualbox&logoColor=white&style=for-the-badge)
