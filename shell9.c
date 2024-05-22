@@ -118,8 +118,8 @@ int verificar_comandos(char **args) {
                     return 1; // Indique que houve um erro
                 }
             }
-            fprintf(stderr, "Comando não encontrado: %s\n", args[0]);
-            return 1;
+            fprintf(stderr, "Comando nao encontrado: %s\n", args[0]);
+            exit(1);
         }
         else if (pid > 0) // Processo pai
         {
