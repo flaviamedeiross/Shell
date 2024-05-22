@@ -43,7 +43,7 @@ cat arquivo.txt > arquivo-saída
 ```
 - Vários comandos separados por um & são executados de forma concorrente, em processos separados.
 ```sh
-cmd1 & cmd2 arg1 arg2 & cmd3 arg3
+cmd1 arg1 & cmd2 arg2 & cmd3 arg3
 ```
 
 ### Compilação e Execução
