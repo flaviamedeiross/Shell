@@ -53,8 +53,7 @@ exit
 cd <diretorio>/<diretorio2>
 ```
 - Define caminho(s) para busca de executáveis.
-  
-O caminho todo deverá ser colocado para a execução desejada.
+  - O caminho todo deverá ser colocado para a execução desejada.
 ```sh
 path <diretorio>/<diretorio2>
 ```
@@ -63,13 +62,13 @@ path <diretorio>/<diretorio2>
 ```sh
 cat <arquivo>
 ```
-- A saída dos comandos poderá ser redirecionada para um arquivo. Um exemplo de comando pode ser visto abaixo:
+- A saída dos comandos poderá ser redirecionada para um arquivo.
+  - Um exemplo de comando pode ser visto abaixo:
 ```sh
 cat arquivo.txt > arquivo-saída
 ```
 - O binário ls lista o conteúdo do diretório atual.
-
-O ls suporta os parâmetros -l, -a, -la e -al conforme o funcionamento do ls original.
+  - O ls suporta os parâmetros -l, -a, -la e -al conforme o funcionamento do ls original.
 ```sh
 ls 
 ```
