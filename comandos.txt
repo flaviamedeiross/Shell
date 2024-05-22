@@ -1,4 +1,8 @@
 path /seu_caminho_da_maquina_virtual
+ls -l
+cat arquivo.txt > arquivo-saída
 cd ..
-ls
-cat arquivo.txt
+cat <arquivo> & ls -a
+cd /
+ls - la
+exit
