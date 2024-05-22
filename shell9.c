@@ -179,10 +179,17 @@ int processar_comandos(char *comando) {
                 return 0; // Sair do shell
             }
         } 
+        else if (strcmp(args[0], "ls") == 0) {
+            // Comando cd deve ser tratado no processo pai
+            if (verificar_comandos(args) == 0) {
+                return 0; // Sair do shell
+            }
+        } 
         else {
             pid_t pid = fork();
             if (pid == 0) {
                 // Processo filho executa o comando
+                printf("\n");
                 execvp(args[0], args);
                 perror("Erro ao executar comando");
                 exit(1);
