@@ -127,7 +127,7 @@ int verificar_comandos(char **args) {
                 }
             }
 
-            // Se nenhum caminho for encontrado
+            // Se nenhum comando/arquivo for encontrado
             fprintf(stderr, "Comando não encontrado: %s\n", args[0]);
             exit(0);
         }
