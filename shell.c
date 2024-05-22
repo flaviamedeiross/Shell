@@ -65,29 +65,24 @@ void adicionar_caminho(char *caminho) {
     }
 }
 
-int verificar_comandos(char **args, char *arquivo_saida) {
+int verificar_comandos(char **args) {
     if (args[0] == NULL) {
+        fprintf(stderr, "Comando nao encontrado: %s\n", args[0]);
         return 1; // Nenhum comando digitado, continue no shell
     }
 
     if (strcmp(args[0], "exit") == 0) {
-        return 0;  // Indica que é para sair do shell
+        exit(0); // Indica que é para sair do shell
 
     } else if (strcmp(args[0], "cd") == 0) { 
-        // se o comando for "cd" entrar em um diretorio             
         char *dir = args[1];
         
-        // Se nenhum diretório é especificado ou ~ (home) é usado
-        if (dir == NULL || strcmp(dir, "~") == 0) 
-        {
-            //retorna um ponteiro contendo informações sobre o usuário atual 
+        if (dir == NULL || strcmp(dir, "~") == 0) {
             struct passwd *pw = getpwuid(getuid());      
-            
             if (pw == NULL) {
                 perror("getpwuid");
                 return 1;
             }
-            //atribui o diretório home do usuário à variável dir
             dir = pw->pw_dir;                           
         }
 
@@ -103,7 +98,7 @@ int verificar_comandos(char **args, char *arquivo_saida) {
         num_caminhos = 0; // Limpar os caminhos anteriores
         for (int i = 1; args[i] != NULL; i++) {
             adicionar_caminho(args[i]);
-        }        
+        }
     } else {
         pid_t pid = fork();
         if (pid == 0) // Processo filho
@@ -112,12 +107,12 @@ int verificar_comandos(char **args, char *arquivo_saida) {
                 char caminho_programa[MAX_COMANDO];
                 snprintf(caminho_programa, sizeof(caminho_programa), "%s/%s", caminhos_executaveis[i], args[0]);
                 if (access(caminho_programa, X_OK) == 0) {
-                    execvp(caminho_programa, args);
+                    execvp(caminho_programa, args); 
                     perror("Erro ao executar programa");
                     return 1; // Indique que houve um erro
                 }
             }
-            fprintf(stderr, "Comando não encontrado: %s\n", args[0]);
+            fprintf(stderr, "Comando nao encontrado: %s\n", args[0]);
             exit(1);
         }
         else if (pid > 0) // Processo pai
@@ -165,32 +160,21 @@ int processar_comandos(char *comando) {
         char *arg_token = strtok(cmd_args[i], " ");
         char *args[100]; // Assumindo que no máximo 100 argumentos são permitidos
         int j = 0;
-        char *arquivo_saida = NULL;
 
         while (arg_token != NULL) {
-            if (strcmp(arg_token, ">") == 0) {
-                arg_token = strtok(NULL, " ");
-                arquivo_saida = arg_token;
-                break;
-            }
             args[j++] = arg_token;
             arg_token = strtok(NULL, " ");
         }
         args[j] = NULL;
 
-        if (strcmp(args[0], "exit") == 0) {
-            return 0; // Sair do shell
-        }
-
-        if (strcmp(args[0], "cd") == 0) {
-            // Comando cd deve ser tratado no processo pai
-            if (verificar_comandos(args, arquivo_saida) == 0) {
+        if (strcmp(args[0], "cd") == 0 || strcmp(args[0], "cat") == 0) {
+            if (verificar_comandos(args) == 0) {
                 return 0; // Sair do shell
             }
-        } else {
+        } 
+        else {
             pid_t pid = fork();
             if (pid == 0) {
-                // Processo filho executa o comando
                 execvp(args[0], args);
                 perror("Erro ao executar comando");
                 exit(1);
@@ -199,7 +183,6 @@ int processar_comandos(char *comando) {
         }
     }
 
-    // Espera todos os processos filhos terminarem
     for (int i = 0; i < num_cmds; i++) {
         int status;
         wait(&status);
@@ -208,23 +191,38 @@ int processar_comandos(char *comando) {
     return 1;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     char comando[MAX_COMANDO], *args[MAX_COMANDO];
     char *ler_comando;
+    FILE *batch_file = NULL;
 
     introducao();
 
+    if (argc > 1) {
+        batch_file = fopen(argv[1], "r");
+        if (!batch_file) {
+            perror("Erro ao abrir arquivo batch");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     while (1) {
-        printf("\n");
-        exibir_prompt();
-        printf(" ");
-        fflush(stdout);
-
-        ler_comando = fgets(comando, sizeof(comando), stdin);
-
-        if (ler_comando == NULL) {
+        if (batch_file) {
+            if (fgets(comando, sizeof(comando), batch_file) == NULL) {
+                break; // Fim do arquivo
+            }
+        } else {
             printf("\n");
-            continue;
+            exibir_prompt();
+            printf(" ");
+            fflush(stdout);
+
+            ler_comando = fgets(comando, sizeof(comando), stdin);
+
+            if (ler_comando == NULL) {
+                printf("\n");
+                continue;
+            }
         }
 
         char *novalinha = strchr(comando, '\n');
@@ -235,33 +233,27 @@ int main() {
             continue; // Comando vazio, continue no loop
         }
 
-        if (strcmp(comando, "exit") == 0){
-            return 0;
-        }
-
-        // Verifica a presença de & e processa os comandos
         if (strchr(comando, '&') != NULL) {
             processar_comandos(comando);
         } else {
             char *arg_token = strtok(comando, " ");
             int j = 0;
-            char *arquivo_saida = NULL;
 
             while (arg_token != NULL) {
-                if (strcmp(arg_token, ">") == 0) {
-                    arg_token = strtok(NULL, " ");
-                    arquivo_saida = arg_token;
-                    break;
-                }
                 args[j++] = arg_token;
                 arg_token = strtok(NULL, " ");
             }
             args[j] = NULL;
-            int continuar = verificar_comandos(args, arquivo_saida);
+
+            int continuar = verificar_comandos(args);
             if (continuar == 0) {
                 break; // Sair do shell
             }
         }
+    }
+
+    if (batch_file) {
+        fclose(batch_file);
     }
 
     return 0;
