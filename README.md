@@ -25,6 +25,7 @@ gcc -g -o shell shell.c
 ```sh
 path /home/<seu_usuario>/<caminho_da_pasta>
 ```
+> Caso não seja passado o caminho path correto (onde se encontra os seus arquivos desse repositório), os comandos cat e ls não irão funcionar
 
 ### Para a Utilização do Shell Batch siga os comando abaixo:
 - Repita os comando a seguir caso não tenha executado o Shell Iterativo antes: `gcc -g -o cat cat.c` , `gcc -g -o ls ls.c` 
