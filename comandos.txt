@@ -1,3 +1,4 @@
+path /
 cd ..
 ls
-exit
+cat arquivo.txt
