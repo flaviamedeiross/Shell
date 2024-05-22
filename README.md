@@ -62,7 +62,7 @@ Criar arquivo txt com os comandos desejados. Exemplo na main.
 gcc -g -o shell shell.c
 ```
 ```sh
-./shell < comandos.txt
+./shell comandos.txt
 ```
 
 
