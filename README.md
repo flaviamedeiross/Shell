@@ -6,9 +6,9 @@
 ### Status do Projeto
 - Concluido
 
-### Execução e Compilação do Programa
+### Execução e Compilação do Programa:
 
-### Para a utilização do Shell Iterativo siga os comandos abaixo:
+### Para a Utilização do Shell Iterativo siga os comandos abaixo:
 ```sh
 gcc -g -o cat cat.c
 ```
