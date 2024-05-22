@@ -238,6 +238,10 @@ int executar_arquivo(const char *nome_arquivo) {
 
         if (strlen(linha) > 0) {
             if (strchr(linha, '&') != NULL) {
+                printf("\n");
+                exibir_prompt();
+                printf(" ");
+                printf("%s\n", linha);
                 processar_comandos(linha);
             } else {
                 printf("\n");
