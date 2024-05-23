@@ -74,13 +74,33 @@ void listar_arquivos(int mostrar_ocultos, int detalhado) {
         printf("\033[0m");
         printf("total %d\n", total / 2);
     } else {
+        int max_len = 0;
+        while ((diretorio = readdir(dir)) != NULL) {
+            if (!mostrar_ocultos && diretorio->d_name[0] == '.')
+                continue;
+              int len = strlen(diretorio->d_name);
+            if (len > max_len) {
+                max_len = len;
+            }
+        }
+        rewinddir(dir); // Volta ao início do diretório
+
+    
+    // Exibe os nomes dos arquivos com alinhamento
+        int columns = 5; 
+        int count = 0;
         while ((diretorio = readdir(dir)) != NULL) {
             if (!mostrar_ocultos && diretorio->d_name[0] == '.')
                 continue;
             printf("\033[0;32m");
-            printf("%s\t  ", diretorio->d_name);
+            printf("%-*s  ", max_len, diretorio->d_name);
+            if (++count % columns == 0) {
+                printf("\n");
+            }
         }
-        printf("\n");
+        if (count % columns != 0) {
+            printf("\n");
+        }
     }
     printf("\033[0m");
     closedir(dir);
@@ -91,28 +111,30 @@ void listar_arquivos(int mostrar_ocultos, int detalhado) {
 int main(int argc, char *argv[]){
 
     int mostrar_ocultos = 0;
-        int detalhado = 0;
-        int valido = 0;
-        // Verifica se os argumentos correspondem às opções válidas
-        if (argv[1] == NULL) {
-            valido = 1;
-        } else if (strcmp(argv[1], "-a") == 0) {
-            mostrar_ocultos = 1;
-            valido = 1;
-        } else if (strcmp(argv[1], "-l") == 0) {
-            detalhado = 1;
-            valido = 1;
-        } else if (strcmp(argv[1], "-la") == 0 || strcmp(argv[1], "-al") == 0) {
-            mostrar_ocultos = 1;
-            detalhado = 1;
-            valido = 1;
-        }
-         if (valido) {
-        listar_arquivos(mostrar_ocultos, detalhado);
-        } else {
-            fprintf(stderr, "Comando ls: argumentos inválidos\n");
-            exit(0);
-        }
-
+    int detalhado = 0;
+    int valido = 0;
+    // Verifica se os argumentos correspondem às opções válidas
+    for (int i = 1; i < argc; i++){
+    if (argv[i] == NULL) {
+        valido = 1;
+    } else if (strcmp(argv[i], "-a") == 0) {
+        mostrar_ocultos = 1;
+        valido = 1;
+    } else if (strcmp(argv[i], "-l") == 0) {
+        detalhado = 1;
+        valido = 1;
+    } else if (strcmp(argv[i], "-la") == 0 || strcmp(argv[i], "-al") == 0) {
+        mostrar_ocultos = 1;
+        detalhado = 1;
+        valido = 1;
+    }
+     else {
+        fprintf(stderr, "Comando ls: argumentos inválidos\n");
+        exit(0);
+    }
+    }
+    
+    listar_arquivos(mostrar_ocultos, detalhado);
+    
     return 0;
 }
