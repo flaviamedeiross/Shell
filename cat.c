@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         fprintf(stderr, "cat: nenhum arquivo fornecido\n");
-        return 1;
+        exit(0);
     }
 
     int existe_redirecionamento = 0;
