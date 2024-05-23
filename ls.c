@@ -111,8 +111,8 @@ int main(int argc, char *argv[]){
         listar_arquivos(mostrar_ocultos, detalhado);
         } else {
             fprintf(stderr, "Comando ls: argumentos inválidos\n");
-            return 1;
+            exit(0);
         }
 
-return(0);
+    return 0;
 }
